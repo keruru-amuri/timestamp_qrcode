@@ -45,7 +45,7 @@
         <h1>Timestamp QR Code</h1>
         <div id="qrcode"></div>
         <div class="timestamp" id="timestamp"></div>
-        <div class="info">QR code refreshes every minute</div>
+        <div class="info">QR code refreshes every 10 seconds</div>
     </div>
 
     <script>
@@ -86,7 +86,7 @@
         // Initial generation
         updateQRCode();
 
-        // Refresh every minute (60000 milliseconds)
+        // Refresh every 10 seconds (10000 milliseconds)
         setInterval(updateQRCode, 10000);
     </script>
 </body>
