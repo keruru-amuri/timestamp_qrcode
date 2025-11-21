@@ -1,0 +1,10 @@
+{
+  "name": "timestamp-qrcode",
+  "version": "1.0.0",
+  "description": "A simple timestamp QR code generator",
+  "scripts": {
+    "build": "echo 'No build required for static HTML'"
+  },
+  "author": "",
+  "license": "ISC"
+}
