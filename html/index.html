@@ -342,6 +342,7 @@
 
         function copyToClipboard(type, event) {
             const text = currentQRTexts[type];
+            const button = event.currentTarget;
             
             if (!text) {
                 alert('No text to copy. Please wait for QR code to generate.');
@@ -351,13 +352,13 @@
             // Try modern clipboard API first
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(text).then(() => {
-                    showCopySuccess(event.currentTarget);
+                    showCopySuccess(button);
                 }).catch(err => {
                     console.error('Clipboard API failed:', err);
-                    fallbackCopy(text, event.currentTarget);
+                    fallbackCopy(text, button);
                 });
             } else {
-                fallbackCopy(text, event.currentTarget);
+                fallbackCopy(text, button);
             }
         }
         
@@ -367,7 +368,9 @@
             textarea.value = text;
             textarea.style.position = 'fixed';
             textarea.style.left = '-9999px';
+            textarea.style.opacity = '0';
             document.body.appendChild(textarea);
+            textarea.focus();
             textarea.select();
             
             try {
@@ -386,6 +389,10 @@
         }
         
         function showCopySuccess(button) {
+            if (!button) {
+                console.error('Button element is null');
+                return;
+            }
             button.classList.add('copied');
             button.title = 'Copied!';
             
