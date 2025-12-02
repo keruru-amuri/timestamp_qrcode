@@ -342,19 +342,57 @@
 
         function copyToClipboard(type, event) {
             const text = currentQRTexts[type];
-            navigator.clipboard.writeText(text).then(() => {
-                const copyBtn = event.currentTarget;
-                copyBtn.classList.add('copied');
-                copyBtn.title = 'Copied!';
-                
-                setTimeout(() => {
-                    copyBtn.classList.remove('copied');
-                    copyBtn.title = 'Copy QR code text';
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy:', err);
+            
+            if (!text) {
+                alert('No text to copy. Please wait for QR code to generate.');
+                return;
+            }
+            
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopySuccess(event.currentTarget);
+                }).catch(err => {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopy(text, event.currentTarget);
+                });
+            } else {
+                fallbackCopy(text, event.currentTarget);
+            }
+        }
+        
+        function fallbackCopy(text, button) {
+            // Fallback method using textarea
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                const success = document.execCommand('copy');
+                if (success) {
+                    showCopySuccess(button);
+                } else {
+                    alert('Failed to copy to clipboard');
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
                 alert('Failed to copy to clipboard');
-            });
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+        
+        function showCopySuccess(button) {
+            button.classList.add('copied');
+            button.title = 'Copied!';
+            
+            setTimeout(() => {
+                button.classList.remove('copied');
+                button.title = 'Copy QR code text';
+            }, 2000);
         }
 
         // Initial generation for all tabs - use window.onload to ensure DOM is ready
