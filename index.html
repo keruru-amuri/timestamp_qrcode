@@ -4,98 +4,285 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timestamp QR Code</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
+            background: #E8EFF2;
+            padding: 20px;
         }
+
         .container {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 0;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #0B4B8C;
+            padding: 20px 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .header-logo {
+            width: 37px;
+            height: 28px;
+        }
+
+        .header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .tabs {
+            display: flex;
+            background: #F5F7F8;
+            border-bottom: 2px solid #D9E1E7;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 16px 12px;
+            background: none;
+            border: none;
+            color: #5B6E7A;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
             text-align: center;
         }
-        #qrcode {
+
+        .tab:hover {
+            background: #E8EFF2;
+            color: #2F3E46;
+        }
+
+        .tab.active {
+            color: #0B4B8C;
+            background: white;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #0B4B8C;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 32px 24px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .qr-container {
             margin: 20px auto;
             display: inline-block;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .timestamp {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            margin-top: 20px;
+
+        .qrcode {
+            display: inline-block;
         }
-        .info {
-            color: #666;
-            margin-top: 10px;
-            font-size: 14px;
+
+        .prefix-label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0B4B8C;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+
         .timestamp-container {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             margin-top: 20px;
+            padding: 16px;
+            background: #F5F7F8;
+            border-radius: 8px;
         }
+
         .timestamp {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
+            font-size: 20px;
+            font-weight: 600;
+            color: #2F3E46;
+            font-family: 'Courier New', monospace;
         }
+
         .copy-btn {
-            background: none;
+            background: #0B4B8C;
             border: none;
-            border-radius: 5px;
-            padding: 8px;
+            border-radius: 8px;
+            padding: 10px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-        }
-        .copy-btn:hover {
-            background-color: #333;
             color: white;
         }
-        .copy-btn:hover svg {
-            stroke: white;
+
+        .copy-btn:hover {
+            background: #094279;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(11, 75, 140, 0.3);
         }
+
         .copy-btn:active {
-            transform: scale(0.95);
+            transform: translateY(0);
         }
+
         .copy-btn.copied {
-            background-color: #4CAF50;
-            border-color: #4CAF50;
+            background: #00A85A;
         }
-        .copy-btn.copied svg {
+
+        .copy-btn svg {
             stroke: white;
+        }
+
+        .info {
+            color: #5B6E7A;
+            margin-top: 16px;
+            font-size: 13px;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Timestamp QR Code</h1>
-        <div id="qrcode"></div>
-        <div class="timestamp-container">
-            <div class="timestamp" id="timestamp"></div>
-            <button class="copy-btn" id="copyBtn" title="Copy QR code text">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-            </button>
+        <div class="header">
+            <svg class="header-logo" width="37" height="28" viewBox="0 0 37 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M36.52 13.28L35.67 13.22C32.33 12.98 32.4 9.96001 32.4 9.96001C32.46 6.25001 30.33 0.34 21.99 0H7.56L7.35999 0.720001H19.46C20.69 0.750001 21.55 1.64001 21.14 3.10001L18.97 10.98C18.15 13.34 15.98 13.22 15.98 13.22C13.76 13.03 14.38 10.93 14.38 10.93L15.37 7.31C15.68 6.08 14.81 5.5 14.05 5.48H6.03998L5.83997 6.2H9.27002C10.53 6.23 10.8 7.17 10.58 8.02C10.58 8.02 10.15 9.51999 9.64996 11.4C9.15996 13.22 7.46998 13.27 7.22998 13.27H3.89001L3.65997 14.12H6.82001C7.18001 14.12 8.89001 14.19 8.38 16.01C7.84 17.9 7.45001 19.39 7.45001 19.39C7.20001 20.24 6.42001 21.17 5.14001 21.21H1.70001L1.51001 21.94H9.52997C10.3 21.92 11.49 21.34 11.87 20.1L12.86 16.5C12.86 16.5 13.39 14.39 15.72 14.2C15.72 14.2 17.96 14.08 17.48 16.44L15.32 24.32C14.92 25.78 13.56 26.69 12.33 26.7H0.209961L0 27.43H14.45C22.98 27.08 28.36 21.18 30.35 17.46C30.35 17.46 31.95 14.43 35.43 14.2L36.29 14.14C36.29 14.14 36.35 14.14 36.37 14.09C36.42 13.94 36.57 13.37 36.58 13.33C36.58 13.29 36.58 13.29 36.54 13.28" fill="white"/>
+            </svg>
+            <h2>Timestamp QR Code Generator</h2>
         </div>
-        <div class="info">QR code refreshes every 10 seconds</div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('issue-counter', event)">Issue Counter</button>
+            <button class="tab" onclick="switchTab('ph5', event)">PH5</button>
+            <button class="tab" onclick="switchTab('ph6', event)">PH6</button>
+        </div>
+
+        <!-- Issue Counter Tab -->
+        <div id="issue-counter" class="tab-content active">
+            <div class="prefix-label">Issue Counter</div>
+            <div class="qr-container">
+                <div id="qrcode-issue-counter" class="qrcode"></div>
+            </div>
+            <div class="timestamp-container">
+                <div class="timestamp" id="timestamp-issue-counter"></div>
+                <button class="copy-btn" onclick="copyToClipboard('issue-counter', event)" title="Copy QR code text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="info">QR code refreshes every 10 seconds</div>
+        </div>
+
+        <!-- PH5 Tab -->
+        <div id="ph5" class="tab-content">
+            <div class="prefix-label">PH5 Received</div>
+            <div class="qr-container">
+                <div id="qrcode-ph5" class="qrcode"></div>
+            </div>
+            <div class="timestamp-container">
+                <div class="timestamp" id="timestamp-ph5"></div>
+                <button class="copy-btn" onclick="copyToClipboard('ph5', event)" title="Copy QR code text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="info">QR code refreshes every 10 seconds</div>
+        </div>
+
+        <!-- PH6 Tab -->
+        <div id="ph6" class="tab-content">
+            <div class="prefix-label">PH6 Received</div>
+            <div class="qr-container">
+                <div id="qrcode-ph6" class="qrcode"></div>
+            </div>
+            <div class="timestamp-container">
+                <div class="timestamp" id="timestamp-ph6"></div>
+                <button class="copy-btn" onclick="copyToClipboard('ph6', event)" title="Copy QR code text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="info">QR code refreshes every 10 seconds</div>
+        </div>
     </div>
 
     <script>
-        let qrcode = null;
-        let currentQRText = '';
+        let qrcodes = {
+            'issue-counter': null,
+            'ph5': null,
+            'ph6': null
+        };
+
+        let currentQRTexts = {
+            'issue-counter': '',
+            'ph5': '',
+            'ph6': ''
+        };
+
+        const prefixes = {
+            'issue-counter': 'DROPPED AT ',
+            'ph5': 'PH5 RECEIVED ',
+            'ph6': 'PH6 RECEIVED '
+        };
 
         function formatTimestamp() {
             const now = new Date();
@@ -108,16 +295,22 @@
             return `${year}-${month}-${day} ${hours}:${minutes}`;
         }
 
-        function updateQRCode() {
+        function updateQRCode(type) {
             const timestamp = formatTimestamp();
-            const fullText = 'DROPPED AT ' + timestamp;
-            currentQRText = fullText;
+            const prefix = prefixes[type];
+            const fullText = prefix + timestamp;
+            currentQRTexts[type] = fullText;
             
             // Clear previous QR code
-            document.getElementById('qrcode').innerHTML = '';
+            const qrElement = document.getElementById(`qrcode-${type}`);
+            if (!qrElement) {
+                console.error(`Element qrcode-${type} not found`);
+                return;
+            }
+            qrElement.innerHTML = '';
             
             // Generate new QR code
-            qrcode = new QRCode(document.getElementById('qrcode'), {
+            qrcodes[type] = new QRCode(qrElement, {
                 text: fullText,
                 width: 256,
                 height: 256,
@@ -127,12 +320,30 @@
             });
             
             // Update timestamp display
-            document.getElementById('timestamp').textContent = timestamp;
+            const timestampEl = document.getElementById(`timestamp-${type}`);
+            if (timestampEl) timestampEl.textContent = timestamp;
         }
 
-        function copyToClipboard() {
-            navigator.clipboard.writeText(currentQRText).then(() => {
-                const copyBtn = document.getElementById('copyBtn');
+        function updateAllQRCodes() {
+            updateQRCode('issue-counter');
+            updateQRCode('ph5');
+            updateQRCode('ph6');
+        }
+
+        function switchTab(tabId, event) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to selected tab and content
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function copyToClipboard(type, event) {
+            const text = currentQRTexts[type];
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = event.currentTarget;
                 copyBtn.classList.add('copied');
                 copyBtn.title = 'Copied!';
                 
@@ -146,14 +357,13 @@
             });
         }
 
-        // Initial generation
-        updateQRCode();
-
-        // Add copy button event listener
-        document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
-
-        // Refresh every 10 seconds (10000 milliseconds)
-        setInterval(updateQRCode, 10000);
+        // Initial generation for all tabs - use window.onload to ensure DOM is ready
+        window.onload = function() {
+            updateAllQRCodes();
+            
+            // Refresh every 10 seconds (10000 milliseconds)
+            setInterval(updateAllQRCodes, 10000);
+        };
     </script>
 </body>
 </html>
